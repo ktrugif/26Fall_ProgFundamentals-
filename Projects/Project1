@@ -2,12 +2,12 @@ cafe_name = "Python Café"
 tax_rate = 0.08
 
 menu = {
-    "espresso": 3.00,
-    "latte": 4.50,
-    "cappuccino": 4.25,
-    "mocha": 5.00,
-    "muffin": 2.50,
-    "croissant": 3.25,
+    "Green Tea": 3.00,
+    "Macha Latte": 4.50,
+    "Mango Matcha": 4.25,
+    "Strawberry Matcha": 5.00,
+    "Blueberry Muffin": 2.50,
+    "Sando Egg": 5.25,
 }
 
 order = []
@@ -16,9 +16,26 @@ def greet(name):
     print(f"Welcome to Python Cafe, {name} !")
 
 def show_menu(menu):
-    loops through menu.items() and prints every item with its price.
+    for item, price in menu.items():
+        print(f"{item}: ${price:.2f}")
 
-    def show_order(order_menu):
+def show_order(order):
+    total = 0
+    for item in order:
+        print(f"- {item}")
+        total += menu.get(item, 0)
+    print(f"Total: ${total:.2f}")
 
     customerName = input("What's your name? ")
 
+def caculate_total(order, menu):
+    total = 0
+    for item in order:
+        total += menu.get(item, 0)
+    return total
+
+def get_discount(subtotal, is_member):
+    if is_member:
+        return subtotal * 0.1  # 10% discount for members
+    else:
+        return 0
