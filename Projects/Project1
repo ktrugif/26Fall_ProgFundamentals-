@@ -1,41 +1,79 @@
-cafe_name = "Python Café"
+cafe_name = "The Cozy Corner"
 tax_rate = 0.08
-
 menu = {
-    "Green Tea": 3.00,
-    "Macha Latte": 4.50,
-    "Mango Matcha": 4.25,
-    "Strawberry Matcha": 5.00,
-    "Blueberry Muffin": 2.50,
-    "Sando Egg": 5.25,
+    "green tea": 3.00,
+    "matcha latte": 4.50,
+    "mango matcha": 4.25,
+    "strawberry matcha": 5.00,
+    "blueberry muffin": 2.50,
+    "sando egg": 5.25,
 }
-
 order = []
+discount_code = ""
+discount = 0.0
+final_total = 0.0
+total = 0.0
+tax = 0.0
 
-def greet(name):
-    print(f"Welcome to Python Cafe, {name} !")
+def greet(c_name, name):
+    print(f"Welcome to {c_name}, {name}!")
 
-def show_menu(menu):
+customer_name = input("Could I get your name? ")
+greet(cafe_name, customer_name)
+
+def show_menu():
+    print("Menu:")
     for item, price in menu.items():
         print(f"{item}: ${price:.2f}")
 
-def show_order(order):
-    total = 0
+show_menu()
+
+show_order = input("Would you like to place an order? (yes/no): ").strip().lower()
+
+if show_order == "yes":
+    while True:
+        item = input("Enter the item you want to order (or type done to finish): ").strip().lower()
+        if item == "done":
+            break
+        elif item in menu:
+            order.append(item)
+            print(f"{item} added to your order.")
+        else:
+            print("Sorry, we don't have that item. Please choose from the menu.")
+
+if order:
+    total = sum(menu[item] for item in order)
+    tax = total * tax_rate
+    final_total = total + tax
+    print("\nYour Order:")
     for item in order:
-        print(f"- {item}")
-        total += menu.get(item, 0)
-    print(f"Total: ${total:.2f}")
+        print(f"- {item}: ${menu[item]:.2f}")
+    print(f"Subtotal: ${total:.2f}")
+    print(f"Tax: ${tax:.2f}")
+    print(f"Total: ${final_total:.2f}")
+else:
+    print("You did not order anything.")
 
-    customerName = input("What's your name? ")
+get_discount = input("Do you have a discount code? (yes/no): ").strip().lower()
 
-def caculate_total(order, menu):
-    total = 0
-    for item in order:
-        total += menu.get(item, 0)
-    return total
-
-def get_discount(subtotal, is_member):
-    if is_member:
-        return subtotal * 0.1  # 10% discount for members
+if get_discount == "yes":
+    discount_code = input("Please enter your discount code: ").strip()
+    if discount_code == "MATCHA10":
+        discount = final_total * 0.10
+        final_total -= discount
+        print(f"Discount applied: -${discount:.2f}")
+        print(f"New Total: ${final_total:.2f}")
     else:
-        return 0
+        print("Invalid discount code.")
+
+print_receipt = input("Would you like a receipt? (yes/no): ").strip().lower()
+
+if print_receipt == "yes":
+    print("\nReceipt:")
+    for item in order:
+        print(f"- {item}: ${menu[item]:.2f}")
+    print(f"Subtotal: ${total:.2f}")
+    print(f"Tax: ${tax:.2f}")
+    if get_discount == "yes" and discount_code == "MATCHA10":
+        print(f"Discount: -${discount:.2f}")
+    print(f"Total: ${final_total:.2f}")
