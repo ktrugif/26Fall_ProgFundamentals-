@@ -1,5 +1,6 @@
 cafe_name = "The Cozy Corner"
 tax_rate = 0.08
+
 menu = {
     "green tea": 3.00,
     "matcha latte": 4.50,
@@ -8,89 +9,153 @@ menu = {
     "blueberry muffin": 2.50,
     "sando egg": 5.25,
 }
+
 order = []
 
-def greet(cafe_name, customer_name):
-    print(f"\nHello, {customer_name}! Welcome to {cafe_name}. We hope you enjoy your visit!")
 
-customer_name = input(f"Hello! Welcome to {cafe_name}! Could I get your name? ")
-greet(cafe_name, customer_name)
+def greet(name):
+    """Prints a welcome message with the café name and the customer's name."""
+    print(f"\nHello, {name}! Welcome to {cafe_name}. We hope you enjoy your visit!")
 
-def show_menu():
-    print("\nMenu:")
-    for item, price in menu.items():
-        print(f"- {item}: ${price:.2f}")
 
-show_menu()
+def show_menu(menu_dict):
+    """Loops through menu.items() and prints every item with its price."""
+    print("\n--- Menu ---")
+    for index, (item, price) in enumerate(menu_dict.items(), start=1):
+        print(f"{index}. {item.title()}: ${price:.2f}")
 
-show_order = input("\nWould you like to place an order? (yes/no): ").strip().lower()
 
-if show_order == "yes":
-    while True:
-        item = input("Enter the item you want to order (or type 'done' to finish): ").strip().lower()
-        if item == "done":
-            break
-        elif item in menu:
-            order.append(item)
-            print(f"-> {item} added to your order.")
-        else:
-            print("Sorry, we don't have that item. Please choose from the menu.")
+def show_order(order_list, menu_dict):
+    """Prints each item in the order with its price and total count using len()."""
+    if not order_list:
+        print("\nYour order is empty.")
+        return
+    print("\n--- Your Order ---")
+    for item in order_list:
+        print(f"- {item.title()}: ${menu_dict[item]:.2f}")
+    print(f"Items: {len(order_list)}")
+
+
+def calculate_subtotal(order_list, menu_dict):
+    """Loops through the order, adds up each item's price, and returns total."""
+    subtotal = 0.0
+    for item in order_list:
+        subtotal += menu_dict[item]
+    return subtotal
+
 
 def get_discount(subtotal, is_member):
-    if is_member and subtotal >= 20:
-        return 0.15
-    elif is_member and 10 <= subtotal < 20:
-        return 0.10
-    elif not is_member and subtotal >= 25:
-        return 0.05
+    """Returns the discount amount in dollars using an if/elif/else chain."""
+    if is_member and subtotal >= 20.0:
+        return subtotal * 0.15
+    elif is_member and subtotal >= 10.0:
+        return subtotal * 0.10
+    elif (not is_member) and subtotal >= 25.0:
+        return subtotal * 0.05
     else:
-        return 0.00
+        return 0.0
 
-if order:
-    subtotal = sum(menu[item] for item in order)
-    
-    # 1. Ask for membership and promo code
-    member_input = input("Are you a rewards member? (yes/no): ").strip().lower()
-    is_member = member_input == "yes"
-    
-    promo_code = input("Enter a promo code (or press Enter to skip): ").strip().upper()
-    
-    # 2. Calculate discount percentage based on membership/tier rules
-    discount_percent = get_discount(subtotal, is_member)
-    
-    # Optional promo code check (e.g., MATCHA10 gives an extra 10% or sets min discount)
-    if promo_code == "MATCHA10" and discount_percent < 0.10:
-        discount_percent = 0.10
 
-    # 3. Calculate financial totals
-    discount_amount = subtotal * discount_percent
+def print_receipt(customer_name, order_list, menu_dict, is_member):
+    """Calls calculate_subtotal() and get_discount(), calculates tax, and prints receipt."""
+    subtotal = calculate_subtotal(order_list, menu_dict)
+    discount_amount = get_discount(subtotal, is_member)
     discounted_subtotal = subtotal - discount_amount
     tax = discounted_subtotal * tax_rate
     final_total = discounted_subtotal + tax
 
-    # 4. Print Summary
-    print("\nOrder Summary:")
-    for item in order:
-        print(f"- {item}: ${menu[item]:.2f}")
-    print(f"Subtotal: ${subtotal:.2f}")
-    if discount_amount > 0:
-        print(f"Discount ({int(discount_percent * 100)}%): -${discount_amount:.2f}")
-    print(f"Tax: ${tax:.2f}")
-    print(f"Total: ${final_total:.2f}")
+    print("\n==============================")
+    print(f"       {cafe_name.upper()}       ")
+    print("==============================")
+    print(f"Customer: {customer_name}")
+    print("------------------------------")
+    for item in order_list:
+        print(f"{item.title():<20} ${menu_dict[item]:>6.2f}")
+    print("------------------------------")
+    print(f"Subtotal:             ${subtotal:>6.2f}")
+    print(f"Discount:            -${discount_amount:>6.2f}")
+    print(f"Tax:                  ${tax:>6.2f}")
+    print(f"Total:                ${final_total:>6.2f}")
+    print("==============================")
 
-    # 5. Optional Receipt Output
-    print_receipt = input("\nWould you like a receipt printed? (yes/no): ").strip().lower()
-    if print_receipt == "yes":
-        print("\n--- RECEIPT ---")
-        print(f"Customer: {customer_name}")
-        for item in order:
-            print(f"- {item}: ${menu[item]:.2f}")
-        print(f"Subtotal: ${subtotal:.2f}")
-        if discount_amount > 0:
-            print(f"Discount: -${discount_amount:.2f}")
-        print(f"Tax: ${tax:.2f}")
-        print(f"Total: ${final_total:.2f}")
-        print("---------------")
+    if not is_member:
+        print("Join our rewards club today to get discounts on future orders!")
 
-else:
-    print("You did not order anything.")
+    print(f"Thanks for visiting, {customer_name}!\n")
+
+
+# ==========================================
+# Step 3: Build the main program
+# ==========================================
+print(f"=== Welcome to {cafe_name}! ===")
+
+name = input("Could I get your name? ").strip()
+greet(name)
+
+member_input = input("Are you a rewards member? (yes/no): ").strip().lower()
+is_member = member_input == "yes"
+
+while True:
+    print("\n1. View menu")
+    print("2. Add an item")
+    print("3. Remove an item")
+    print("4. View my order")
+    print("5. Checkout")
+
+    choice = input("Please choose an option (1-5): ").strip()
+
+    if choice == "1":
+        show_menu(menu)
+
+    elif choice == "2":
+        item_input = input("What item would you like to add? (Name or number 1-6): ").strip().lower()
+        
+        menu_items = list(menu.keys())
+        if item_input.isdigit():
+            idx = int(item_input) - 1
+            item = menu_items[idx] if 0 <= idx < len(menu_items) else item_input
+        else:
+            item = item_input
+
+        if item in menu:
+            try:
+                quantity = int(input(f"How many '{item.title()}' would you like? "))
+                if quantity >= 1:
+                    for _ in range(quantity):
+                        order.append(item)
+                    print(f"-> Added {quantity} x {item.title()} to your order.")
+                else:
+                    print("Error: Quantity must be at least 1.")
+            except ValueError:
+                print("Error: Please enter a valid number for quantity.")
+        else:
+            print(f"Sorry, '{item_input}' is not on the menu.")
+
+    elif choice == "3":
+        item_input = input("Which item would you like to remove? (Name or number 1-6): ").strip().lower()
+        
+        menu_items = list(menu.keys())
+        if item_input.isdigit():
+            idx = int(item_input) - 1
+            item = menu_items[idx] if 0 <= idx < len(menu_items) else item_input
+        else:
+            item = item_input
+
+        if item in order:
+            order.remove(item)
+            print(f"-> Removed one '{item.title()}' from your order.")
+        else:
+            print(f"'{item_input}' is not currently in your order.")
+
+    elif choice == "4":
+        show_order(order, menu)
+
+    elif choice == "5":
+        if not order:
+            print("Your order is empty! Please add something before checking out.")
+        else:
+            print_receipt(name, order, menu, is_member)
+            break
+
+    else:
+        print("Please choose a number from 1 to 5.")
