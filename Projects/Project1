@@ -9,71 +9,88 @@ menu = {
     "sando egg": 5.25,
 }
 order = []
-discount_code = ""
-discount = 0.0
-final_total = 0.0
-total = 0.0
-tax = 0.0
 
-def greet(c_name, name):
-    print(f"Welcome to {c_name}, {name}!")
+def greet(cafe_name, customer_name):
+    print(f"\nHello, {customer_name}! Welcome to {cafe_name}. We hope you enjoy your visit!")
 
-customer_name = input("Could I get your name? ")
+customer_name = input(f"Hello! Welcome to {cafe_name}! Could I get your name? ")
 greet(cafe_name, customer_name)
 
 def show_menu():
-    print("Menu:")
+    print("\nMenu:")
     for item, price in menu.items():
-        print(f"{item}: ${price:.2f}")
+        print(f"- {item}: ${price:.2f}")
 
 show_menu()
 
-show_order = input("Would you like to place an order? (yes/no): ").strip().lower()
+show_order = input("\nWould you like to place an order? (yes/no): ").strip().lower()
 
 if show_order == "yes":
     while True:
-        item = input("Enter the item you want to order (or type done to finish): ").strip().lower()
+        item = input("Enter the item you want to order (or type 'done' to finish): ").strip().lower()
         if item == "done":
             break
         elif item in menu:
             order.append(item)
-            print(f"{item} added to your order.")
+            print(f"-> {item} added to your order.")
         else:
             print("Sorry, we don't have that item. Please choose from the menu.")
 
+def get_discount(subtotal, is_member):
+    if is_member and subtotal >= 20:
+        return 0.15
+    elif is_member and 10 <= subtotal < 20:
+        return 0.10
+    elif not is_member and subtotal >= 25:
+        return 0.05
+    else:
+        return 0.00
+
 if order:
-    total = sum(menu[item] for item in order)
-    tax = total * tax_rate
-    final_total = total + tax
-    print("\nYour Order:")
+    subtotal = sum(menu[item] for item in order)
+    
+    # 1. Ask for membership and promo code
+    member_input = input("Are you a rewards member? (yes/no): ").strip().lower()
+    is_member = member_input == "yes"
+    
+    promo_code = input("Enter a promo code (or press Enter to skip): ").strip().upper()
+    
+    # 2. Calculate discount percentage based on membership/tier rules
+    discount_percent = get_discount(subtotal, is_member)
+    
+    # Optional promo code check (e.g., MATCHA10 gives an extra 10% or sets min discount)
+    if promo_code == "MATCHA10" and discount_percent < 0.10:
+        discount_percent = 0.10
+
+    # 3. Calculate financial totals
+    discount_amount = subtotal * discount_percent
+    discounted_subtotal = subtotal - discount_amount
+    tax = discounted_subtotal * tax_rate
+    final_total = discounted_subtotal + tax
+
+    # 4. Print Summary
+    print("\nOrder Summary:")
     for item in order:
         print(f"- {item}: ${menu[item]:.2f}")
-    print(f"Subtotal: ${total:.2f}")
+    print(f"Subtotal: ${subtotal:.2f}")
+    if discount_amount > 0:
+        print(f"Discount ({int(discount_percent * 100)}%): -${discount_amount:.2f}")
     print(f"Tax: ${tax:.2f}")
     print(f"Total: ${final_total:.2f}")
+
+    # 5. Optional Receipt Output
+    print_receipt = input("\nWould you like a receipt printed? (yes/no): ").strip().lower()
+    if print_receipt == "yes":
+        print("\n--- RECEIPT ---")
+        print(f"Customer: {customer_name}")
+        for item in order:
+            print(f"- {item}: ${menu[item]:.2f}")
+        print(f"Subtotal: ${subtotal:.2f}")
+        if discount_amount > 0:
+            print(f"Discount: -${discount_amount:.2f}")
+        print(f"Tax: ${tax:.2f}")
+        print(f"Total: ${final_total:.2f}")
+        print("---------------")
+
 else:
     print("You did not order anything.")
-
-get_discount = input("Do you have a discount code? (yes/no): ").strip().lower()
-
-if get_discount == "yes":
-    discount_code = input("Please enter your discount code: ").strip()
-    if discount_code == "MATCHA10":
-        discount = final_total * 0.10
-        final_total -= discount
-        print(f"Discount applied: -${discount:.2f}")
-        print(f"New Total: ${final_total:.2f}")
-    else:
-        print("Invalid discount code.")
-
-print_receipt = input("Would you like a receipt? (yes/no): ").strip().lower()
-
-if print_receipt == "yes":
-    print("\nReceipt:")
-    for item in order:
-        print(f"- {item}: ${menu[item]:.2f}")
-    print(f"Subtotal: ${total:.2f}")
-    print(f"Tax: ${tax:.2f}")
-    if get_discount == "yes" and discount_code == "MATCHA10":
-        print(f"Discount: -${discount:.2f}")
-    print(f"Total: ${final_total:.2f}")
