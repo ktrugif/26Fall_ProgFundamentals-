@@ -84,9 +84,6 @@ def print_receipt(customer_name, order_list, menu_dict, is_member):
     print(f"Thanks for visiting, {customer_name}!\n")
 
 
-# ==========================================
-# Step 3: Build the main program
-# ==========================================
 print(f"=== Welcome to {cafe_name}! ===")
 
 name = input("Could I get your name? ").strip()
